@@ -386,10 +386,27 @@ button{font-family:inherit;cursor:pointer}
 .thinking-content{display:none;padding:14px;font-size:0.85rem;color:var(--w3);font-style:italic;line-height:1.6;max-height:300px;overflow-y:auto;background:var(--bg2)}
 .thinking-content.show{display:block}
 
-/* Tool use */
-.tool-block{margin:8px 0;background:var(--bg2);padding:10px 14px;border-left:2px solid var(--cyan);border:1px solid var(--bg3);border-left:3px solid var(--cyan)}
-.tool-name{font-size:0.78rem;font-weight:600;color:var(--cyan)}
-.tool-preview{font-size:0.73rem;color:var(--w3);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Tool calls — collapsible */
+.tools-summary{
+    display:flex;align-items:center;gap:8px;padding:8px 12px;margin:8px 0 0;
+    background:var(--bg3);cursor:pointer;font-size:0.75rem;color:var(--w3);
+    transition:color 0.1s;user-select:none;border-radius:2px;
+}
+.tools-summary:hover{color:var(--w)}
+.tools-summary .arrow{font-size:0.6rem;transition:transform 0.15s;color:var(--w4)}
+.tools-summary .arrow.open{transform:rotate(90deg)}
+.tools-label{color:var(--cyan);font-weight:600}
+.tools-names{color:var(--w4);font-size:0.72rem}
+.tools-detail{display:none}
+.tools-detail.show{display:block}
+
+.tool-block{
+    margin:0;background:var(--bg2);padding:8px 14px;
+    border-left:3px solid var(--cyan);border-bottom:1px solid var(--bg3);
+}
+.tool-block:last-child{border-bottom:none}
+.tool-name{font-size:0.75rem;font-weight:600;color:var(--cyan)}
+.tool-preview{font-size:0.7rem;color:var(--w4);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* ── Heatmap ────────────────────────── */
 .heatmap-container{overflow-x:auto;padding:4px 0}

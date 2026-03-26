@@ -88,13 +88,19 @@ def build_summary(session_file: Path, project_dir_name: str, auto_summary: Optio
     total_input_tokens = 0
     total_output_tokens = 0
     total_cache_read_tokens = 0
+    total_cache_create_tokens = 0
     models_used = set()
     git_branch = None
     claude_version = None
+    cwd = None
 
     for entry in messages:
         msg = entry.get("message", {})
         ts_str = entry.get("timestamp")
+
+        # Extract real cwd from first message that has it
+        if cwd is None:
+            cwd = entry.get("cwd")
 
         # Parse timestamp
         if ts_str:
@@ -133,20 +139,22 @@ def build_summary(session_file: Path, project_dir_name: str, auto_summary: Optio
             usage = msg.get("usage", {})
             if usage:
                 cache_read = usage.get("cache_read_input_tokens", 0)
-                total_input_tokens += (
-                    usage.get("input_tokens", 0)
-                    + usage.get("cache_creation_input_tokens", 0)
-                    + cache_read
-                )
+                cache_create = usage.get("cache_creation_input_tokens", 0)
+                raw_input = usage.get("input_tokens", 0)
+                total_input_tokens += raw_input + cache_create + cache_read
                 total_cache_read_tokens += cache_read
+                total_cache_create_tokens += cache_create
                 total_output_tokens += usage.get("output_tokens", 0)
             model = msg.get("model")
             if model:
                 models_used.add(model)
 
+    # Use real cwd from session data if available, fall back to decoded path
+    real_path = cwd or project_path
+
     return {
         "session_id": session_id,
-        "project_path": project_path,
+        "project_path": real_path,
         "project_encoded": project_dir_name,
         "first_message_preview": first_message_preview,
         "auto_summary": auto_summary,
@@ -159,6 +167,7 @@ def build_summary(session_file: Path, project_dir_name: str, auto_summary: Optio
         "total_input_tokens": total_input_tokens,
         "total_output_tokens": total_output_tokens,
         "total_cache_read_tokens": total_cache_read_tokens,
+        "total_cache_create_tokens": total_cache_create_tokens,
         "models_used": sorted(models_used),
         "git_branch": git_branch,
         "claude_version": claude_version,

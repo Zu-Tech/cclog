@@ -9,7 +9,24 @@ document.addEventListener('DOMContentLoaded', () => {
     initSearch();
     initConversationView();
     initKeyboardShortcuts();
+    checkForUpdate();
 });
+
+/* ── Update check ──────────────────────────── */
+async function checkForUpdate() {
+    try {
+        const res = await fetch('/api/v1/version');
+        const data = await res.json();
+        if (data.update_available) {
+            const banner = document.getElementById('update-banner');
+            const text = document.getElementById('update-text');
+            if (banner && text) {
+                text.textContent = `${data.current} → ${data.latest}`;
+                banner.style.display = 'block';
+            }
+        }
+    } catch (e) {}
+}
 
 /* ── Activity chart ────────────────────────── */
 function initActivityChart() {
@@ -221,6 +238,15 @@ async function loadConversation(sessionId) {
             }
         });
 
+        // Resume — copy cd + claude --resume command
+        const resumeBtn = view.querySelector('.btn-resume');
+        if (resumeBtn) {
+            const resumeCmd = `cd ${data.project_path} && claude --resume ${sessionId}`;
+            resumeBtn.onclick = () => {
+                navigator.clipboard.writeText(resumeCmd).then(() => showToast('Copied to clipboard — paste in terminal to resume'));
+            };
+        }
+
         // Delete
         view.querySelector('.btn-delete').onclick = async () => {
             if (!confirm('Soft-delete this conversation?\nOriginal files are never modified.')) return;
@@ -228,24 +254,44 @@ async function loadConversation(sessionId) {
             window.location = '/projects';
         };
 
-        // Messages
-        msgContainer.innerHTML = data.messages.map((msg, i) => {
+        // Messages — skip empty ones, collapse tool-only messages
+        const rendered = [];
+        for (let i = 0; i < data.messages.length; i++) {
+            const msg = data.messages[i];
             const isUser = msg.role === 'user';
+            const hasContent = msg.content_html && msg.content_html.trim() && msg.content_html.trim() !== '';
+            const hasTools = msg.tool_uses && msg.tool_uses.length > 0;
+            const hasThinking = !!msg.thinking;
+
+            // Skip user messages that are just tool results (no visible content)
+            if (isUser && !hasContent) continue;
+            // Skip assistant messages with no content, no tools, no thinking
+            if (!isUser && !hasContent && !hasTools && !hasThinking) continue;
+
             const roleClass = isUser ? 'message-user' : 'message-assistant';
             const sidechainClass = msg.is_sidechain ? 'message-sidechain' : '';
 
             let toolsHtml = '';
-            if (msg.tool_uses && msg.tool_uses.length > 0) {
-                toolsHtml = msg.tool_uses.map(t => `
-                    <div class="tool-block">
-                        <div class="tool-name">${esc(t.name)}</div>
-                        <div class="tool-preview">${esc(t.input_preview)}</div>
+            if (hasTools) {
+                const toolCount = msg.tool_uses.length;
+                const toolSummary = msg.tool_uses.slice(0, 3).map(t => esc(t.name)).join(', ');
+                const moreText = toolCount > 3 ? ` +${toolCount - 3} more` : '';
+                toolsHtml = `
+                    <div class="tools-summary" onclick="this.nextElementSibling.classList.toggle('show');this.querySelector('.arrow').classList.toggle('open')">
+                        <span class="arrow">\u25b8</span>
+                        <span class="tools-label">${toolCount} tool call${toolCount > 1 ? 's' : ''}</span>
+                        <span class="tools-names">${toolSummary}${moreText}</span>
                     </div>
-                `).join('');
+                    <div class="tools-detail">${msg.tool_uses.map(t => `
+                        <div class="tool-block">
+                            <div class="tool-name">${esc(t.name)}</div>
+                            <div class="tool-preview">${esc(t.input_preview)}</div>
+                        </div>`).join('')}
+                    </div>`;
             }
 
             let thinkingHtml = '';
-            if (msg.thinking) {
+            if (hasThinking) {
                 thinkingHtml = `
                     <div class="thinking-block">
                         <button class="thinking-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('show')">
@@ -255,23 +301,25 @@ async function loadConversation(sessionId) {
                     </div>`;
             }
 
+            const roleLabel = isUser ? 'You' : 'Claude';
             const modelHtml = msg.model ? `<span class="message-model">${esc(msg.model.replace('claude-', ''))}</span>` : '';
-            const tokensHtml = msg.input_tokens ? `<span class="message-tokens">${formatTokens(msg.input_tokens + (msg.output_tokens || 0))} tok</span>` : '';
+            const tokensHtml = msg.input_tokens ? `<span class="message-tokens">${formatTokens(msg.input_tokens + (msg.output_tokens || 0))}</span>` : '';
             const timeHtml = msg.timestamp ? `<span class="message-time">${new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>` : '';
 
-            return `
-                <div class="message ${roleClass} ${sidechainClass}" style="animation-delay:${Math.min(i * 0.04, 0.8)}s">
+            rendered.push(`
+                <div class="message ${roleClass} ${sidechainClass}" style="animation-delay:${Math.min(rendered.length * 0.03, 0.6)}s">
                     <div class="message-header">
-                        <span class="message-role">${msg.role}</span>
+                        <span class="message-role">${roleLabel}</span>
                         ${modelHtml}
                         ${tokensHtml}
                         ${timeHtml}
                     </div>
                     ${thinkingHtml}
-                    <div class="message-body">${msg.content_html || ''}</div>
+                    ${hasContent ? `<div class="message-body">${msg.content_html}</div>` : ''}
                     ${toolsHtml}
-                </div>`;
-        }).join('');
+                </div>`);
+        }
+        msgContainer.innerHTML = rendered.join('');
 
         // Scroll to highlighted message if ?highlight= is present
         const params = new URLSearchParams(window.location.search);
@@ -328,4 +376,17 @@ function formatTokens(n) {
     if (n > 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
     if (n > 1_000) return (n / 1_000).toFixed(1) + 'K';
     return n.toString();
+}
+
+function showToast(msg) {
+    const el = document.getElementById('toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.style.opacity = '1';
+    el.style.transform = 'translateX(-50%) translateY(0)';
+    clearTimeout(el._timer);
+    el._timer = setTimeout(() => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateX(-50%) translateY(80px)';
+    }, 2500);
 }

@@ -22,7 +22,7 @@
             <div class="conv-tags"></div>
             <div class="conv-actions">
                 <input type="text" class="tag-input" placeholder="Add tag..." />
-                <button class="btn-small btn-resume" onclick="navigator.clipboard.writeText('claude --resume {{ session_id }}').then(()=>{this.textContent='Copied!';setTimeout(()=>{this.innerHTML='<svg width=12 height=12 viewBox=&quot;0 0 24 24&quot; fill=none stroke=currentColor stroke-width=2><rect x=9 y=9 width=13 height=13 rx=2/><path d=&quot;M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1&quot;/></svg> Resume'},1500)})" style="display:inline-flex;align-items:center;gap:4px;color:var(--green);border-color:rgba(0,232,123,0.2);">
+                <button class="btn-small btn-resume" style="display:inline-flex;align-items:center;gap:4px;color:var(--green);border-color:rgba(0,232,123,0.2);">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
                     Resume
                 </button>
@@ -38,4 +38,13 @@
         <div class="loading"></div>
     </div>
 </div>
+
+<!-- Toast notification -->
+<div id="toast" style="
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+    background:var(--bg4);border:1px solid var(--green);color:var(--green);
+    font-family:var(--font);font-size:0.82rem;padding:10px 24px;
+    z-index:9000;opacity:0;transition:all 0.3s ease;pointer-events:none;
+    box-shadow:0 0 20px var(--green-ghost);
+"></div>
 {% endblock %}

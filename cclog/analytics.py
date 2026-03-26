@@ -7,14 +7,14 @@ from datetime import datetime
 # https://docs.anthropic.com/en/docs/about-claude/pricing (March 2026)
 # Cache reads cost 0.1x input price — most Claude Code tokens are cache reads
 MODEL_COSTS = {
-    "opus-4.6": {"input": 5.0, "cache_read": 0.50, "output": 25.0},
-    "opus-4.5": {"input": 5.0, "cache_read": 0.50, "output": 25.0},
-    "opus-4.1": {"input": 15.0, "cache_read": 1.50, "output": 75.0},
-    "opus-4":   {"input": 15.0, "cache_read": 1.50, "output": 75.0},
-    "sonnet":   {"input": 3.0, "cache_read": 0.30, "output": 15.0},
-    "haiku-4.5": {"input": 1.0, "cache_read": 0.10, "output": 5.0},
-    "haiku-3.5": {"input": 0.80, "cache_read": 0.08, "output": 4.0},
-    "haiku-3":  {"input": 0.25, "cache_read": 0.03, "output": 1.25},
+    "opus-4.6": {"input": 5.0, "cache_create": 6.25, "cache_read": 0.50, "output": 25.0},
+    "opus-4.5": {"input": 5.0, "cache_create": 6.25, "cache_read": 0.50, "output": 25.0},
+    "opus-4.1": {"input": 15.0, "cache_create": 18.75, "cache_read": 1.50, "output": 75.0},
+    "opus-4":   {"input": 15.0, "cache_create": 18.75, "cache_read": 1.50, "output": 75.0},
+    "sonnet":   {"input": 3.0, "cache_create": 3.75, "cache_read": 0.30, "output": 15.0},
+    "haiku-4.5": {"input": 1.0, "cache_create": 1.25, "cache_read": 0.10, "output": 5.0},
+    "haiku-3.5": {"input": 0.80, "cache_create": 1.0, "cache_read": 0.08, "output": 4.0},
+    "haiku-3":  {"input": 0.25, "cache_create": 0.30, "cache_read": 0.03, "output": 1.25},
 }
 
 SKIP_MODELS = {"<synthetic>", "synthetic", "", None}
@@ -45,13 +45,15 @@ def get_model_cost(model_name: str) -> dict:
     return MODEL_COSTS["sonnet"]
 
 
-def compute_cost(model_name: str, input_tokens: int, output_tokens: int, cache_read_tokens: int = 0) -> float:
-    """Compute estimated cost in USD. Separates cache reads (much cheaper)."""
+def compute_cost(model_name: str, input_tokens: int, output_tokens: int,
+                  cache_read_tokens: int = 0, cache_create_tokens: int = 0) -> float:
+    """Compute estimated cost in USD with proper per-category pricing."""
     costs = get_model_cost(model_name)
-    # input_tokens here already includes cache_read — subtract it out
-    base_input = max(0, input_tokens - cache_read_tokens)
+    # input_tokens includes cache_read + cache_create — extract raw input
+    raw_input = max(0, input_tokens - cache_read_tokens - cache_create_tokens)
     return (
-        (base_input / 1_000_000 * costs["input"])
+        (raw_input / 1_000_000 * costs["input"])
+        + (cache_create_tokens / 1_000_000 * costs.get("cache_create", costs["input"] * 1.25))
         + (cache_read_tokens / 1_000_000 * costs.get("cache_read", costs["input"] * 0.1))
         + (output_tokens / 1_000_000 * costs["output"])
     )
@@ -72,6 +74,7 @@ def compute_overview(summaries: list[dict]) -> dict:
         inp = s.get("total_input_tokens", 0)
         out = s.get("total_output_tokens", 0)
         cache_read = s.get("total_cache_read_tokens", 0)
+        cache_create = s.get("total_cache_create_tokens", 0)
         total_input += inp
         total_output += out
         total_messages += s.get("message_count", 0)
@@ -80,7 +83,7 @@ def compute_overview(summaries: list[dict]) -> dict:
         # Cost estimation — use first model in list
         s_models = [m for m in s.get("models_used", []) if m not in SKIP_MODELS]
         primary_model = s_models[0] if s_models else "sonnet"
-        session_cost = compute_cost(primary_model, inp, out, cache_read)
+        session_cost = compute_cost(primary_model, inp, out, cache_read, cache_create)
         total_cost += session_cost
 
         # Projects

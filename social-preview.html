@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;600;700;800&family=Share+Tech+Mono&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+    width:1280px;height:640px;overflow:hidden;
+    font-family:'Geist Mono','SF Mono',monospace;
+    background:#0a0c0f;color:#eaecf0;
+    display:flex;align-items:center;justify-content:center;
+    position:relative;
+}
+body::before{
+    content:'';position:absolute;inset:0;
+    background:
+        radial-gradient(circle 400px at 35% 40%, rgba(0,232,123,0.08), transparent 70%),
+        radial-gradient(circle 300px at 70% 65%, rgba(255,176,32,0.04), transparent 70%),
+        repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,232,123,0.012) 2px,rgba(0,232,123,0.012) 4px),
+        repeating-linear-gradient(90deg,transparent,transparent 80px,rgba(0,232,123,0.015) 80px,rgba(0,232,123,0.015) 81px),
+        repeating-linear-gradient(0deg,transparent,transparent 80px,rgba(0,232,123,0.015) 80px,rgba(0,232,123,0.015) 81px);
+}
+.content{position:relative;text-align:center;max-width:900px}
+.badge{
+    display:inline-block;font-size:14px;color:#00e87b;
+    background:rgba(0,232,123,0.06);padding:6px 20px;
+    border:1px solid rgba(0,232,123,0.15);
+    letter-spacing:0.1em;text-transform:uppercase;margin-bottom:32px;
+}
+h1{
+    font-family:'Share Tech Mono',monospace;font-size:64px;font-weight:400;
+    letter-spacing:0.04em;text-transform:uppercase;line-height:1.1;margin-bottom:20px;
+}
+h1 span{color:#00e87b;text-shadow:0 0 40px rgba(0,232,123,0.15)}
+.sub{font-size:18px;color:#636a7a;line-height:1.5;margin-bottom:32px}
+.cmd{
+    display:inline-block;background:#0e1014;border:1px solid #1a1d22;
+    padding:12px 28px;font-size:16px;color:#00e87b;letter-spacing:0.02em;
+}
+.cmd .prefix{color:#3a4050}
+</style>
+</head>
+<body>
+<div class="content">
+    <div class="badge">Open Source &middot; pip install claude-log</div>
+    <h1>Your Claude Code<br><span>history</span>, organized.</h1>
+    <p class="sub">Browse, search, tag, and analyze every conversation.<br>Cost analytics. Full-text search. Export/import.</p>
+    <div class="cmd"><span class="prefix">$ </span>pip install claude-log && cclog</div>
+</div>
+</body>
+</html>

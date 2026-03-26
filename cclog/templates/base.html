@@ -36,7 +36,10 @@
             </a></li>
         </ul>
         <div class="sidebar-footer">
-            <span class="version-badge">v0.1.0</span>
+            <span class="version-badge">v{{ version }}</span>
+            <div id="update-banner" style="display:none;margin-top:6px;padding:5px 8px;background:var(--amber-ghost);border:1px solid rgba(255,176,32,0.2);font-size:0.65rem;color:var(--amber);">
+                <span id="update-text"></span>
+            </div>
         </div>
     </nav>
     <main class="content">

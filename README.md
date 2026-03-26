@@ -6,13 +6,13 @@
 Browse, search, and analyze your [Claude Code](https://docs.anthropic.com/en/docs/claude-code) conversation history.
 
 <p align="center">
-  <img src="cclog/static/header.png" alt="cclog" width="100%">
+  <img src="https://raw.githubusercontent.com/Zu-Tech/cclog/main/header.png" alt="cclog" width="100%">
 </p>
 
 ## Install
 
 ```bash
-pip install git+https://github.com/Zu-Tech/cclog.git
+pip install claude-log
 ```
 
 ## Usage

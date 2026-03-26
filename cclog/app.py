@@ -51,11 +51,11 @@ def short_project(path: str) -> str:
     if not path:
         return "unknown"
     parts = [p for p in path.rstrip("/").split("/") if p]
-    # Strip /home/<user>/repos or /Users/<user> prefix
-    if len(parts) >= 3 and parts[0] in ("home", "Users"):
-        parts = parts[2:]  # drop home + username
-    # Strip leading "repos" or similar
-    while parts and parts[0] in ("repos", "src", "projects", "p_p"):
+    # Strip /home/<user> or /Users/<user> prefix
+    if len(parts) >= 2 and parts[0] in ("home", "Users"):
+        parts = parts[2:]  # drop root + username
+    # Strip common noise directories
+    while parts and parts[0] in ("repos", "src", "projects", "code", "dev", "work"):
         parts = parts[1:]
     # Show last 3 segments max
     if len(parts) > 3:
@@ -107,13 +107,16 @@ def get_display_name(summary: dict, meta: dict) -> str:
 def create_app(claude_home: Path | None = None) -> FastAPI:
     claude_home = claude_home or get_claude_home()
 
-    app = FastAPI(title="cclog", version="0.1.0")
+    from . import __version__
+
+    app = FastAPI(title="cclog", version=__version__)
 
     base_dir = Path(__file__).parent
     app.mount("/static", StaticFiles(directory=str(base_dir / "static")), name="static")
     templates = Jinja2Templates(directory=str(base_dir / "templates"))
 
     # Register template filters/globals
+    templates.env.globals["version"] = __version__
     templates.env.filters["format_tokens"] = format_tokens_short
     templates.env.filters["short_project"] = short_project
     templates.env.filters["short_model"] = short_model
@@ -342,6 +345,18 @@ def create_app(claude_home: Path | None = None) -> FastAPI:
     async def api_analytics():
         active = [s for s in summaries if not metadata.get(s["session_id"]).get("deleted")]
         return analytics_mod.compute_overview(active)
+
+    @app.get("/api/v1/version")
+    async def api_version():
+        latest = __version__
+        try:
+            from urllib.request import urlopen
+            resp = urlopen("https://pypi.org/pypi/claude-log/json", timeout=3)
+            data = json.loads(resp.read())
+            latest = data["info"]["version"]
+        except Exception:
+            pass
+        return {"current": __version__, "latest": latest, "update_available": latest != __version__}
 
     # ── Export / Import ──────────────────────────
 

@@ -1,6 +1,6 @@
 [project]
-name = "cclog"
-version = "0.1.0"
+name = "claude-log"
+version = "0.1.2"
 description = "Browse, search, and analyze your Claude Code conversation history"
 readme = "README.md"
 license = {text = "MIT"}
@@ -23,6 +23,7 @@ Issues = "https://github.com/Zu-Tech/cclog/issues"
 
 [project.scripts]
 cclog = "cclog.cli:main"
+claude-log = "cclog.cli:main"
 
 [build-system]
 requires = ["setuptools>=68.0"]
