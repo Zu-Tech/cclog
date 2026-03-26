@@ -22,39 +22,41 @@ function initActivityChart() {
         return;
     }
 
-    // Build a map of date -> data
-    const byDate = {};
-    data.forEach(d => { byDate[d.date] = d; });
-
-    // Fill in all days from first to last (max 60 days from today)
-    const today = new Date();
-    const startDate = new Date(today);
-    startDate.setDate(startDate.getDate() - 59);
-
-    const filled = [];
-    for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
-        const key = d.toISOString().slice(0, 10);
-        filled.push(byDate[key] || { date: key, session_count: 0, message_count: 0, tokens: 0 });
+    // Only show days with actual activity
+    const active = data.filter(d => d.tokens > 0);
+    if (active.length === 0) {
+        container.innerHTML = '<div class="empty-state"><p>No activity data yet</p></div>';
+        return;
     }
 
-    // Use log scale so outlier days don't crush everything
-    const maxLog = Math.log10(Math.max(...filled.map(d => d.tokens), 10));
-    const chartHeight = container.clientHeight || 170;
+    const maxTokens = Math.max(...active.map(d => d.tokens), 1);
+    const barArea = 190; // px height for bars
 
-    container.innerHTML = filled.map((d, i) => {
-        let height, opacity;
-        if (d.tokens === 0) {
-            height = 2; opacity = 'opacity:0.12';
-        } else {
-            const logVal = Math.log10(Math.max(d.tokens, 1));
-            height = Math.max(6, (logVal / maxLog) * (chartHeight - 10));
-            opacity = '';
-        }
-        const tooltip = d.tokens === 0
-            ? `${d.date} \u2014 no activity`
-            : `${d.date} \u2014 ${d.session_count} sess, ${formatTokens(d.tokens)} tok`;
-        return `<div class="chart-bar" style="height:${height}px;${opacity};animation-delay:${i * 0.01}s" data-tooltip="${tooltip}"></div>`;
-    }).join('');
+    // Show ~10 date labels evenly spaced
+    const labelEvery = Math.max(1, Math.floor(active.length / 10));
+
+    let html = '<div class="chart-inner">';
+    html += '<div class="chart-bars">';
+    active.forEach((d, i) => {
+        // sqrt scale — better than linear (outlier-resistant) and more readable than log
+        const pct = Math.sqrt(d.tokens / maxTokens);
+        const height = Math.max(8, pct * barArea);
+        const tooltip = `${d.date} \u2014 ${d.session_count} sess, ${formatTokens(d.tokens)} tok, $${(d.cost || 0).toFixed(2)}`;
+        html += `<div class="chart-col" style="animation-delay:${i * 0.015}s">`;
+        html += `<div class="chart-bar" style="height:${height}px" data-tooltip="${tooltip}"></div>`;
+        html += `</div>`;
+    });
+    html += '</div>';
+    // Date labels row
+    html += '<div class="chart-labels">';
+    active.forEach((d, i) => {
+        const show = i === 0 || i === active.length - 1 || i % labelEvery === 0;
+        const label = d.date.slice(5); // MM-DD
+        html += `<span class="chart-date">${show ? label : ''}</span>`;
+    });
+    html += '</div></div>';
+
+    container.innerHTML = html;
 }
 
 /* ── Heatmap (day x hour) ──────────────────── */
