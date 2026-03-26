@@ -6,7 +6,7 @@
 Browse, search, and analyze your [Claude Code](https://docs.anthropic.com/en/docs/claude-code) conversation history.
 
 <p align="center">
-  <img src="cclog/static/header.png" alt="cclog" width="100%">
+  <img src="https://raw.githubusercontent.com/Zu-Tech/cclog/main/cclog/static/header.png" alt="cclog" width="100%">
 </p>
 
 ## Install
