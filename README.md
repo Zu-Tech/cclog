@@ -12,7 +12,7 @@ Browse, search, and analyze your [Claude Code](https://docs.anthropic.com/en/doc
 ## Install
 
 ```bash
-pip install git+https://github.com/Zu-Tech/cclog.git
+pip install claude-log
 ```
 
 ## Usage

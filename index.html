@@ -11,8 +11,7 @@
 :root {
     --void:#050508;--bg:#0a0c0f;--bg1:#0e1014;--bg2:#131619;--bg3:#1a1d22;--bg4:#22262c;
     --green:#00e87b;--green-dim:#00b862;--green-ghost:rgba(0,232,123,0.06);--green-glow:rgba(0,232,123,0.12);
-    --amber:#ffb020;--amber-ghost:rgba(255,176,32,0.06);
-    --cyan:#00d4ff;--cyan-ghost:rgba(0,212,255,0.08);
+    --amber:#ffb020;--cyan:#00d4ff;
     --w:#eaecf0;--w2:#b4b9c4;--w3:#8a90a0;--w4:#636a7a;--w5:#3a4050;
     --font:'Geist Mono','SF Mono','Consolas',monospace;
     --font-display:'Share Tech Mono','Geist Mono',monospace;
@@ -20,7 +19,7 @@
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{font-size:14px;-webkit-font-smoothing:antialiased}
-body{font-family:var(--font);background:var(--bg);color:var(--w);line-height:1.55;min-height:100vh;overflow-x:hidden}
+body{font-family:var(--font);background:var(--bg);color:var(--w);line-height:1.55;overflow-x:hidden;min-height:100vh;display:flex;flex-direction:column}
 a{color:inherit;text-decoration:none}
 
 .noise{
@@ -31,57 +30,55 @@ a{color:inherit;text-decoration:none}
         repeating-linear-gradient(0deg,transparent,transparent 100px,rgba(0,232,123,0.02) 100px,rgba(0,232,123,0.02) 101px);
 }
 
-/* Hero */
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Hero ─────────────────── */
 .hero{
-    min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    text-align:center;padding:40px 20px;position:relative;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:120px 20px 60px;position:relative;
 }
 .hero::before{
     content:'';position:absolute;inset:0;
     background:
-        radial-gradient(ellipse 500px 300px at 40% 30%,var(--green-ghost),transparent),
-        radial-gradient(ellipse 400px 200px at 65% 70%,var(--amber-ghost),transparent);
+        radial-gradient(circle 400px at 50% 40%, rgba(0,232,123,0.07), transparent 70%);
     pointer-events:none;
 }
 
 .badge{
-    font-size:0.73rem;font-weight:500;color:var(--green);background:var(--green-ghost);
-    padding:4px 14px;margin-bottom:24px;letter-spacing:0.08em;text-transform:uppercase;
+    font-size:0.72rem;color:var(--green);background:var(--green-ghost);
+    padding:5px 16px;margin-bottom:28px;letter-spacing:0.1em;text-transform:uppercase;
     border:1px solid rgba(0,232,123,0.15);animation:fu 0.4s ease both;
 }
-@keyframes fu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
 h1{
-    font-family:var(--font-display);font-size:2.8rem;font-weight:400;
-    letter-spacing:0.04em;text-transform:uppercase;line-height:1.15;
-    color:var(--w);max-width:600px;margin-bottom:14px;
+    font-family:var(--font-display);font-size:3rem;font-weight:400;
+    letter-spacing:0.05em;text-transform:uppercase;line-height:1.1;
+    color:var(--w);max-width:620px;margin-bottom:16px;
     animation:fu 0.4s ease both;animation-delay:.1s;
 }
-h1 span{color:var(--green);text-shadow:0 0 30px var(--green-ghost)}
+h1 span{color:var(--green);text-shadow:0 0 40px var(--green-ghost)}
 
 .sub{
-    font-size:0.92rem;color:var(--w4);max-width:420px;line-height:1.5;margin-bottom:32px;
+    font-size:0.92rem;color:var(--w4);max-width:400px;line-height:1.55;margin-bottom:36px;
     animation:fu 0.4s ease both;animation-delay:.2s;
 }
 
-/* Install box */
 .install{
     background:var(--bg1);border:1px solid var(--bg3);padding:14px 24px;
-    display:flex;align-items:center;gap:12px;margin-bottom:40px;
-    animation:fu 0.4s ease both;animation-delay:.3s;max-width:520px;width:100%;
+    display:inline-flex;align-items:center;gap:12px;margin-bottom:24px;
+    animation:fu 0.4s ease both;animation-delay:.3s;
 }
-.install code{color:var(--green);font-size:0.88rem;flex:1;user-select:all}
-.install .prefix{color:var(--w5);font-size:0.88rem}
+.install code{color:var(--green);font-size:0.85rem;user-select:all}
+.install .prefix{color:var(--w5);font-size:0.85rem}
 .install button{
     background:none;border:1px solid var(--bg4);padding:4px 10px;
-    font-family:var(--font);font-size:0.73rem;color:var(--w4);cursor:pointer;
-    transition:all 0.15s;
+    font-family:var(--font);font-size:0.72rem;color:var(--w4);cursor:pointer;transition:all 0.15s;
 }
 .install button:hover{border-color:var(--green);color:var(--green)}
 
 .cta{
     display:inline-flex;align-items:center;gap:8px;
-    background:transparent;color:var(--green);font-weight:600;font-size:0.88rem;
+    background:transparent;color:var(--green);font-weight:600;font-size:0.85rem;
     padding:10px 28px;border:1px solid var(--green);font-family:var(--font);
     letter-spacing:0.06em;text-transform:uppercase;transition:all 0.15s;
     animation:fu 0.4s ease both;animation-delay:.35s;
@@ -89,39 +86,71 @@ h1 span{color:var(--green);text-shadow:0 0 30px var(--green-ghost)}
 .cta:hover{background:var(--green-ghost);box-shadow:0 0 20px var(--green-ghost)}
 .cta svg{width:16px;height:16px}
 
-/* Screenshot */
-.screenshot-wrap{
-    max-width:900px;margin:48px auto 0;padding:0 20px;
-    animation:fu 0.6s ease both;animation-delay:.5s;
+/* ── Screenshot ───────────── */
+.screenshot{
+    max-width:860px;margin:56px auto 0;padding:0 20px;
+    animation:fu 0.6s ease both;animation-delay:.45s;
 }
-.screenshot-wrap img{
+.screenshot img{
     width:100%;border:1px solid var(--bg3);
-    box-shadow:0 20px 60px rgba(0,0,0,0.4);
+    box-shadow:0 24px 80px rgba(0,0,0,0.5),0 0 0 1px var(--bg3);
 }
 
-/* Features */
+/* ── Features ─────────────── */
+.features-section{
+    max-width:640px;margin:0 auto;padding:0 20px;
+}
+.features-title{
+    font-family:var(--font);font-size:0.72rem;color:var(--w5);
+    text-transform:uppercase;letter-spacing:0.12em;text-align:center;margin-bottom:24px;
+}
 .features{
-    display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
-    max-width:700px;margin:48px auto 0;background:var(--bg3);border:1px solid var(--bg3);
-    animation:fu 0.4s ease both;animation-delay:.5s;
+    display:grid;grid-template-columns:1fr 1fr;gap:1px;
+    background:var(--bg3);border:1px solid var(--bg3);
 }
-.feat{text-align:left;padding:18px;background:var(--bg1)}
-.feat-icon{font-size:1.2rem;margin-bottom:8px}
-.feat h3{font-size:0.82rem;font-weight:600;color:var(--green);margin-bottom:3px;letter-spacing:0.02em}
-.feat p{font-size:0.77rem;color:var(--w4);line-height:1.4}
+.feat{padding:20px;background:var(--bg1);display:flex;gap:12px;align-items:flex-start}
+.feat-icon{font-size:1.1rem;flex-shrink:0;margin-top:2px}
+.feat-text h3{font-size:0.82rem;font-weight:600;color:var(--w);margin-bottom:3px}
+.feat-text p{font-size:0.75rem;color:var(--w4);line-height:1.45}
 
-/* Footer */
-.footer{
-    text-align:center;padding:48px 20px;font-size:0.77rem;color:var(--w5);
-    border-top:1px solid var(--bg3);margin-top:80px;
+/* ── How it works ─────────── */
+.how{
+    max-width:480px;margin:48px auto 0;padding:0 20px;
 }
-.footer a{color:var(--green);text-decoration:underline}
+.how-title{
+    font-family:var(--font);font-size:0.72rem;color:var(--w5);
+    text-transform:uppercase;letter-spacing:0.12em;text-align:center;margin-bottom:20px;
+}
+.how-steps{display:flex;flex-direction:column;gap:0}
+.how-step{
+    display:flex;gap:14px;padding:14px 16px;
+    border-bottom:1px solid var(--bg3);
+}
+.how-step:last-child{border-bottom:none}
+.how-num{
+    font-family:var(--font-display);font-size:1.1rem;color:var(--green);
+    opacity:0.5;flex-shrink:0;min-width:20px;
+}
+.how-step p{font-size:0.82rem;color:var(--w3);line-height:1.5}
+.how-step code{color:var(--green);font-size:0.82rem}
+
+/* ── Footer ───────────────── */
+.footer{
+    text-align:center;padding:48px 20px;font-size:0.75rem;color:var(--w5);
+    border-top:1px solid var(--bg3);margin-top:auto;
+}
+.footer a{color:var(--green)}
+
+/* ── Scroll reveal ─────────── */
+.reveal{opacity:0;transform:translateY(24px)}
+.reveal.visible{animation:reveal-in 0.6s ease forwards}
+@keyframes reveal-in{to{opacity:1;transform:translateY(0)}}
 
 @media(max-width:768px){
-    h1{font-size:1.8rem}
+    h1{font-size:2rem}
     .features{grid-template-columns:1fr}
-    .install{flex-wrap:wrap}
-    .install code{font-size:0.78rem}
+    .install{padding:12px 16px}
+    .install code{font-size:0.75rem}
 }
 </style>
 </head>
@@ -131,65 +160,63 @@ h1 span{color:var(--green);text-shadow:0 0 30px var(--green-ghost)}
 <section class="hero">
     <div class="badge">Open Source &middot; MIT License</div>
     <h1>Your Claude Code <span>history</span>, organized.</h1>
-    <p class="sub">Browse, search, and analyze every conversation. Tag what matters. Find anything instantly. Know what it costs.</p>
+    <p class="sub">Browse, search, and analyze every conversation. Tag what matters. Know what it costs.</p>
 
     <div class="install">
         <span class="prefix">$</span>
-        <code id="cmd">pip install git+https://github.com/Zu-Tech/cclog.git</code>
+        <code id="cmd">pip install claude-log</code>
         <button onclick="navigator.clipboard.writeText(document.getElementById('cmd').textContent);this.textContent='copied!';setTimeout(()=>this.textContent='copy',1500)">copy</button>
     </div>
 
     <a href="https://github.com/Zu-Tech/cclog" class="cta">
-        View on GitHub
+        GitHub
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
     </a>
 
-    <!-- screenshot placeholder -->
-    <!--
-    <div class="screenshot-wrap">
-        <img src="screenshot.png" alt="cclog dashboard screenshot" />
-    </div>
-    -->
 </section>
 
-<section style="max-width:700px;margin:0 auto;padding:0 20px;">
+<section class="features-section reveal">
+    <div class="features-title">// Features</div>
     <div class="features">
         <div class="feat">
             <div class="feat-icon">&#x1F50D;</div>
-            <h3>Full-text search</h3>
-            <p>Find any conversation by content, instantly</p>
-        </div>
-        <div class="feat">
-            <div class="feat-icon">&#x1F3F7;</div>
-            <h3>Tag &amp; organize</h3>
-            <p>Name, tag, and favorite your conversations</p>
+            <div class="feat-text"><h3>Full-text search</h3><p>Find any conversation by content</p></div>
         </div>
         <div class="feat">
             <div class="feat-icon">&#x1F4B0;</div>
-            <h3>Cost analytics</h3>
-            <p>Estimated spend per model, project, and day</p>
+            <div class="feat-text"><h3>Cost analytics</h3><p>Spend per model, project, and day</p></div>
+        </div>
+        <div class="feat">
+            <div class="feat-icon">&#x1F3F7;</div>
+            <div class="feat-text"><h3>Tag &amp; organize</h3><p>Name, tag, favorite conversations</p></div>
         </div>
         <div class="feat">
             <div class="feat-icon">&#x1F4E6;</div>
-            <h3>Export &amp; Import</h3>
-            <p>Export per project or chat. Import on any machine</p>
+            <div class="feat-text"><h3>Export &amp; Import</h3><p>Move history between machines</p></div>
         </div>
-        <div class="feat">
-            <div class="feat-icon">&#x1F512;</div>
-            <h3>Read-only</h3>
-            <p>Never modifies ~/.claude &mdash; your data stays safe</p>
-        </div>
-        <div class="feat">
-            <div class="feat-icon">&#x26A1;</div>
-            <h3>API &amp; Docs</h3>
-            <p>Full REST API with Swagger docs at /docs</p>
-        </div>
+    </div>
+</section>
+
+<section class="how reveal">
+    <div class="how-title">// Quick start</div>
+    <div class="how-steps">
+        <div class="how-step"><span class="how-num">1</span><p>Install: <code>pip install claude-log</code></p></div>
+        <div class="how-step"><span class="how-num">2</span><p>Run: <code>cclog</code></p></div>
+        <div class="how-step"><span class="how-num">3</span><p>Opens your browser at <code>localhost:9117</code></p></div>
     </div>
 </section>
 
 <footer class="footer">
-    <a href="https://github.com/Zu-Tech/cclog">github.com/Zu-Tech/cclog</a> &middot; MIT License
+    <a href="https://github.com/Zu-Tech/cclog">github.com/Zu-Tech/cclog</a> &middot; MIT
 </footer>
 
+<script>
+requestAnimationFrame(() => {
+    const obs = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+    }, { threshold: 0.05, rootMargin: '0px 0px -30px 0px' });
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+});
+</script>
 </body>
 </html>
