@@ -5,7 +5,9 @@
 
 Browse, search, and analyze your [Claude Code](https://docs.anthropic.com/en/docs/claude-code) conversation history.
 
-<!-- screenshot -->
+<p align="center">
+  <img src="cclog/static/header.png" alt="cclog" width="100%">
+</p>
 
 ## Install
 
