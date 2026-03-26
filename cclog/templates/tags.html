@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Tags — cclog{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Tags</h1>
+    <p class="subtitle">{{ tags | length }} tags</p>
+</div>
+
+<div class="tags-grid">
+    {% for tag, count in tags %}
+    <div class="tag-card">
+        <span class="tag-name">{{ tag }}</span>
+        <span class="tag-count">{{ count }} conversation{{ 's' if count != 1 }}</span>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>No tags yet</p>
+        <p class="empty-hint">Tag conversations from the conversation view to organize your history</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

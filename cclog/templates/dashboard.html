@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — cclog{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Dashboard</h1>
+    <p class="subtitle">Your Claude Code history at a glance</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-value">{{ overview.total_sessions }}</div>
+        <div class="stat-label">Conversations</div>
+        <div class="stat-glow"></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ (overview.total_input_tokens + overview.total_output_tokens) | format_tokens }}</div>
+        <div class="stat-label">Total Tokens</div>
+        <div class="stat-glow"></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">${{ "%.2f" | format(overview.total_cost) }}</div>
+        <div class="stat-label">Est. Cost</div>
+        <div class="stat-glow"></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ overview.total_messages }}</div>
+        <div class="stat-label">Messages</div>
+        <div class="stat-glow"></div>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <div class="card card-wide">
+        <h2 class="card-title">Activity</h2>
+        <div id="activity-chart" class="chart-container"></div>
+    </div>
+
+    <div class="card">
+        <h2 class="card-title">Models</h2>
+        <div class="model-list">
+            {% for m in overview.models_used %}
+            <div class="model-row">
+                <span class="model-name">{{ m.model | short_model }}</span>
+                <span class="model-sessions">{{ m.session_count }} sess</span>
+                <span class="model-tokens">${{ "%.2f" | format(m.cost) }}</span>
+            </div>
+            {% endfor %}
+            {% if not overview.models_used %}
+            <div class="empty-state"><p>No model data</p></div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 class="card-title">Top Projects</h2>
+        <div class="project-list">
+            {% for p in overview.top_projects[:6] %}
+            <div class="project-row">
+                <span class="project-name">{{ p.project | short_project }}</span>
+                <div class="project-stats">
+                    <span>{{ p.session_count }} sess</span>
+                    <span class="sep">·</span>
+                    <span>${{ "%.2f" | format(p.cost) }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="card card-full">
+    <h2 class="card-title">Activity Heatmap</h2>
+    <div id="heatmap" class="heatmap-container"></div>
+</div>
+
+<div class="card card-full">
+    <h2 class="card-title">Recent Conversations</h2>
+    <div class="session-list">
+        {% for s, meta in recent %}
+        <a href="/sessions/{{ s.session_id }}" class="session-row">
+            <div class="session-row-main">
+                <span class="fav {{ 'active' if meta.favorite }}">★</span>
+                <div class="session-info">
+                    <span class="session-name">{{ get_display_name(s, meta) }}</span>
+                    <span class="session-project">{{ s.project_path | short_project }}</span>
+                </div>
+                <div class="session-tags">
+                    {% for tag in meta.tags %}
+                    <span class="tag-pill">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="session-row-meta">
+                <span class="session-tokens">{{ (s.total_input_tokens + s.total_output_tokens) | format_tokens }} tok</span>
+                <span class="session-date">{{ s.started_at | format_date }}</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+window.__dailyActivity = {{ daily_json | safe }};
+window.__heatmap = {{ heatmap_json | safe }};
+</script>
+{% endblock %}

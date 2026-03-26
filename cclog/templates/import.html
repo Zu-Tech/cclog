@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Import — cclog{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Import History</h1>
+    <p class="subtitle">Import a cclog export zip to load conversation history</p>
+</div>
+
+<div class="import-container" style="max-width:500px;">
+    <form id="import-form" style="display:flex;flex-direction:column;gap:16px;">
+        <label style="display:flex;flex-direction:column;gap:8px;">
+            <span style="font-family:var(--mono);font-size:0.78rem;color:var(--t3);text-transform:uppercase;letter-spacing:0.06em;">Select export zip</span>
+            <input type="file" id="import-file" accept=".zip"
+                style="background:var(--bg-2);border:1px solid var(--bg-3);border-radius:var(--r-sm);padding:12px;color:var(--t1);font-family:var(--font);cursor:pointer;" />
+        </label>
+        <button type="submit" class="landing-cta" style="width:fit-content;font-size:0.9rem;padding:10px 24px;">
+            Upload &amp; Import
+        </button>
+    </form>
+    <div id="import-result" style="margin-top:20px;"></div>
+</div>
+
+<div style="margin-top:40px;">
+    <h2 style="font-size:1.1rem;font-weight:600;color:var(--white);margin-bottom:8px;">Export Current History</h2>
+    <p style="color:var(--t3);font-size:0.9rem;margin-bottom:16px;">Download all conversations and metadata as a zip file.</p>
+    <a href="/api/v1/export" class="btn-small" style="display:inline-flex;padding:10px 20px;font-size:0.82rem;color:var(--accent-text);border-color:var(--accent-soft);">
+        Download Export
+    </a>
+</div>
+
+<script>
+document.getElementById('import-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const file = document.getElementById('import-file').files[0];
+    if (!file) return;
+    const result = document.getElementById('import-result');
+    result.innerHTML = '<div class="loading"></div>';
+    const form = new FormData();
+    form.append('file', file);
+    try {
+        const res = await fetch('/api/v1/import', { method: 'POST', body: form });
+        const data = await res.json();
+        if (data.success) {
+            result.innerHTML = `<div style="color:var(--green);font-family:var(--mono);font-size:0.88rem;">Imported ${data.imported_sessions} sessions from ${data.imported_projects} projects</div>`;
+        } else {
+            result.innerHTML = `<div style="color:var(--rose);">${data.error}</div>`;
+        }
+    } catch(e) {
+        result.innerHTML = `<div style="color:var(--rose);">Error: ${e.message}</div>`;
+    }
+});
+</script>
+{% endblock %}

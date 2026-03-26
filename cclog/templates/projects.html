@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Projects — cclog{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;">
+    <div>
+        <h1>Projects</h1>
+        <p class="subtitle">{{ projects | length }} projects tracked</p>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+        <label class="btn-small" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;color:var(--green);border-color:var(--green-soft);cursor:pointer;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Import
+            <input type="file" id="import-file" accept=".zip" style="display:none;" />
+        </label>
+    </div>
+</div>
+<div id="import-status" style="margin-bottom:16px;"></div>
+
+<script>
+document.getElementById('import-file').addEventListener('change', async function() {
+    const file = this.files[0];
+    if (!file) return;
+    const status = document.getElementById('import-status');
+    status.innerHTML = '<span style="font-family:var(--mono);font-size:0.82rem;color:var(--t2);">Importing...</span>';
+    const form = new FormData();
+    form.append('file', file);
+    try {
+        const res = await fetch('/api/v1/import', { method: 'POST', body: form });
+        const data = await res.json();
+        if (data.success) {
+            status.innerHTML = '<span style="font-family:var(--mono);font-size:0.82rem;color:var(--green);">Imported ' + data.imported_sessions + ' sessions from ' + data.imported_projects + ' projects. Reloading...</span>';
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            status.innerHTML = '<span style="font-family:var(--mono);font-size:0.82rem;color:var(--rose);">' + (data.error || data.detail) + '</span>';
+        }
+    } catch(e) {
+        status.innerHTML = '<span style="font-family:var(--mono);font-size:0.82rem;color:var(--rose);">Error: ' + e.message + '</span>';
+    }
+    this.value = '';
+});
+</script>
+
+<div class="projects-grid">
+    {% for p in projects %}
+    <a href="/projects/{{ p.encoded }}" class="project-card">
+        <div class="project-card-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+        </div>
+        <h3 class="project-card-name">{{ p.path | short_project }}</h3>
+        <p class="project-card-path">{{ p.path }}</p>
+        <div class="project-card-stats">
+            <span>{{ p.session_count }} sessions</span>
+            <span class="sep">·</span>
+            <span>{{ p.total_tokens | format_tokens }} tok</span>
+            <span class="sep">·</span>
+            <span>{{ p.last_activity | format_date if p.last_activity else '—' }}</span>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% endblock %}

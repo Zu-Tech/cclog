@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>cclog — Browse your Claude Code history</title>
+<meta name="description" content="Browse, search, and analyze your Claude Code conversation history. Open source.">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap');
+
+:root {
+    --void:#050508;--bg:#0a0c0f;--bg1:#0e1014;--bg2:#131619;--bg3:#1a1d22;--bg4:#22262c;
+    --green:#00e87b;--green-dim:#00b862;--green-ghost:rgba(0,232,123,0.06);--green-glow:rgba(0,232,123,0.12);
+    --amber:#ffb020;--amber-ghost:rgba(255,176,32,0.06);
+    --cyan:#00d4ff;--cyan-ghost:rgba(0,212,255,0.08);
+    --w:#eaecf0;--w2:#b4b9c4;--w3:#8a90a0;--w4:#636a7a;--w5:#3a4050;
+    --font:'Geist Mono','SF Mono','Consolas',monospace;
+    --font-display:'Share Tech Mono','Geist Mono',monospace;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font);background:var(--bg);color:var(--w);line-height:1.55;min-height:100vh;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+
+.noise{
+    position:fixed;inset:0;z-index:9999;pointer-events:none;
+    background:
+        repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,232,123,0.015) 2px,rgba(0,232,123,0.015) 4px),
+        repeating-linear-gradient(90deg,transparent,transparent 100px,rgba(0,232,123,0.02) 100px,rgba(0,232,123,0.02) 101px),
+        repeating-linear-gradient(0deg,transparent,transparent 100px,rgba(0,232,123,0.02) 100px,rgba(0,232,123,0.02) 101px);
+}
+
+/* Hero */
+.hero{
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:40px 20px;position:relative;
+}
+.hero::before{
+    content:'';position:absolute;inset:0;
+    background:
+        radial-gradient(ellipse 500px 300px at 40% 30%,var(--green-ghost),transparent),
+        radial-gradient(ellipse 400px 200px at 65% 70%,var(--amber-ghost),transparent);
+    pointer-events:none;
+}
+
+.badge{
+    font-size:0.73rem;font-weight:500;color:var(--green);background:var(--green-ghost);
+    padding:4px 14px;margin-bottom:24px;letter-spacing:0.08em;text-transform:uppercase;
+    border:1px solid rgba(0,232,123,0.15);animation:fu 0.4s ease both;
+}
+@keyframes fu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+h1{
+    font-family:var(--font-display);font-size:2.8rem;font-weight:400;
+    letter-spacing:0.04em;text-transform:uppercase;line-height:1.15;
+    color:var(--w);max-width:600px;margin-bottom:14px;
+    animation:fu 0.4s ease both;animation-delay:.1s;
+}
+h1 span{color:var(--green);text-shadow:0 0 30px var(--green-ghost)}
+
+.sub{
+    font-size:0.92rem;color:var(--w4);max-width:420px;line-height:1.5;margin-bottom:32px;
+    animation:fu 0.4s ease both;animation-delay:.2s;
+}
+
+/* Install box */
+.install{
+    background:var(--bg1);border:1px solid var(--bg3);padding:14px 24px;
+    display:flex;align-items:center;gap:12px;margin-bottom:40px;
+    animation:fu 0.4s ease both;animation-delay:.3s;max-width:520px;width:100%;
+}
+.install code{color:var(--green);font-size:0.88rem;flex:1;user-select:all}
+.install .prefix{color:var(--w5);font-size:0.88rem}
+.install button{
+    background:none;border:1px solid var(--bg4);padding:4px 10px;
+    font-family:var(--font);font-size:0.73rem;color:var(--w4);cursor:pointer;
+    transition:all 0.15s;
+}
+.install button:hover{border-color:var(--green);color:var(--green)}
+
+.cta{
+    display:inline-flex;align-items:center;gap:8px;
+    background:transparent;color:var(--green);font-weight:600;font-size:0.88rem;
+    padding:10px 28px;border:1px solid var(--green);font-family:var(--font);
+    letter-spacing:0.06em;text-transform:uppercase;transition:all 0.15s;
+    animation:fu 0.4s ease both;animation-delay:.35s;
+}
+.cta:hover{background:var(--green-ghost);box-shadow:0 0 20px var(--green-ghost)}
+.cta svg{width:16px;height:16px}
+
+/* Screenshot */
+.screenshot-wrap{
+    max-width:900px;margin:48px auto 0;padding:0 20px;
+    animation:fu 0.6s ease both;animation-delay:.5s;
+}
+.screenshot-wrap img{
+    width:100%;border:1px solid var(--bg3);
+    box-shadow:0 20px 60px rgba(0,0,0,0.4);
+}
+
+/* Features */
+.features{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+    max-width:700px;margin:48px auto 0;background:var(--bg3);border:1px solid var(--bg3);
+    animation:fu 0.4s ease both;animation-delay:.5s;
+}
+.feat{text-align:left;padding:18px;background:var(--bg1)}
+.feat-icon{font-size:1.2rem;margin-bottom:8px}
+.feat h3{font-size:0.82rem;font-weight:600;color:var(--green);margin-bottom:3px;letter-spacing:0.02em}
+.feat p{font-size:0.77rem;color:var(--w4);line-height:1.4}
+
+/* Footer */
+.footer{
+    text-align:center;padding:48px 20px;font-size:0.77rem;color:var(--w5);
+    border-top:1px solid var(--bg3);margin-top:80px;
+}
+.footer a{color:var(--green);text-decoration:underline}
+
+@media(max-width:768px){
+    h1{font-size:1.8rem}
+    .features{grid-template-columns:1fr}
+    .install{flex-wrap:wrap}
+    .install code{font-size:0.78rem}
+}
+</style>
+</head>
+<body>
+<div class="noise"></div>
+
+<section class="hero">
+    <div class="badge">Open Source &middot; MIT License</div>
+    <h1>Your Claude Code <span>history</span>, organized.</h1>
+    <p class="sub">Browse, search, and analyze every conversation. Tag what matters. Find anything instantly. Know what it costs.</p>
+
+    <div class="install">
+        <span class="prefix">$</span>
+        <code id="cmd">pip install git+https://github.com/Zu-Tech/cclog.git</code>
+        <button onclick="navigator.clipboard.writeText(document.getElementById('cmd').textContent);this.textContent='copied!';setTimeout(()=>this.textContent='copy',1500)">copy</button>
+    </div>
+
+    <a href="https://github.com/Zu-Tech/cclog" class="cta">
+        View on GitHub
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+
+    <!-- screenshot placeholder -->
+    <!--
+    <div class="screenshot-wrap">
+        <img src="screenshot.png" alt="cclog dashboard screenshot" />
+    </div>
+    -->
+</section>
+
+<section style="max-width:700px;margin:0 auto;padding:0 20px;">
+    <div class="features">
+        <div class="feat">
+            <div class="feat-icon">&#x1F50D;</div>
+            <h3>Full-text search</h3>
+            <p>Find any conversation by content, instantly</p>
+        </div>
+        <div class="feat">
+            <div class="feat-icon">&#x1F3F7;</div>
+            <h3>Tag &amp; organize</h3>
+            <p>Name, tag, and favorite your conversations</p>
+        </div>
+        <div class="feat">
+            <div class="feat-icon">&#x1F4B0;</div>
+            <h3>Cost analytics</h3>
+            <p>Estimated spend per model, project, and day</p>
+        </div>
+        <div class="feat">
+            <div class="feat-icon">&#x1F4E6;</div>
+            <h3>Export &amp; Import</h3>
+            <p>Export per project or chat. Import on any machine</p>
+        </div>
+        <div class="feat">
+            <div class="feat-icon">&#x1F512;</div>
+            <h3>Read-only</h3>
+            <p>Never modifies ~/.claude &mdash; your data stays safe</p>
+        </div>
+        <div class="feat">
+            <div class="feat-icon">&#x26A1;</div>
+            <h3>API &amp; Docs</h3>
+            <p>Full REST API with Swagger docs at /docs</p>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <a href="https://github.com/Zu-Tech/cclog">github.com/Zu-Tech/cclog</a> &middot; MIT License
+</footer>
+
+</body>
+</html>

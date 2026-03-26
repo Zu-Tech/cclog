@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Conversation — cclog{% endblock %}
+
+{% block content %}
+<div class="conversation-view" data-session-id="{{ session_id }}">
+    <div class="conv-header">
+        <div class="breadcrumb">
+            <a href="/projects">Projects</a>
+            <span class="bc-sep">▸</span>
+            <span class="conv-project-name">...</span>
+        </div>
+        <div class="conv-title-row">
+            <h1 class="conv-title" contenteditable="false">Loading...</h1>
+            <button class="btn-icon btn-edit-name" title="Rename">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="btn-icon btn-fav" title="Favorite">★</button>
+        </div>
+        <div class="conv-meta-bar">
+            <span class="conv-date"></span>
+            <span class="conv-branch"></span>
+            <div class="conv-tags"></div>
+            <div class="conv-actions">
+                <input type="text" class="tag-input" placeholder="Add tag..." />
+                <button class="btn-small btn-resume" onclick="navigator.clipboard.writeText('claude --resume {{ session_id }}').then(()=>{this.textContent='Copied!';setTimeout(()=>{this.innerHTML='<svg width=12 height=12 viewBox=&quot;0 0 24 24&quot; fill=none stroke=currentColor stroke-width=2><rect x=9 y=9 width=13 height=13 rx=2/><path d=&quot;M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1&quot;/></svg> Resume'},1500)})" style="display:inline-flex;align-items:center;gap:4px;color:var(--green);border-color:rgba(0,232,123,0.2);">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                    Resume
+                </button>
+                <a href="/api/v1/export/session/{{ session_id }}" class="btn-small" style="display:inline-flex;align-items:center;gap:4px;color:var(--amber);border-color:rgba(255,176,32,0.2);text-decoration:none;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Export
+                </a>
+                <button class="btn-small btn-delete" data-session="{{ session_id }}">Delete</button>
+            </div>
+        </div>
+    </div>
+    <div class="messages-container">
+        <div class="loading"></div>
+    </div>
+</div>
+{% endblock %}

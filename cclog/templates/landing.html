@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cclog — Your Claude Code History</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="noise-overlay"></div>
+    <div class="landing">
+        <div class="landing-badge">v0.1.0 &middot; Open Source</div>
+
+        <h1>Your Claude Code <span>history</span>, organized.</h1>
+
+        <p class="landing-sub">
+            Browse, search, and analyze every conversation.
+            Tag what matters. Find anything instantly.
+        </p>
+
+        <div class="landing-stats">
+            <div class="landing-stat">
+                <div class="landing-stat-value">{{ total_sessions }}</div>
+                <div class="landing-stat-label">Conversations</div>
+            </div>
+            <div class="landing-stat">
+                <div class="landing-stat-value">{{ total_tokens }}</div>
+                <div class="landing-stat-label">Tokens Used</div>
+            </div>
+            <div class="landing-stat">
+                <div class="landing-stat-value">{{ total_projects }}</div>
+                <div class="landing-stat-label">Projects</div>
+            </div>
+        </div>
+
+        <a href="/dashboard" class="landing-cta">
+            Open Dashboard
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+
+        <div class="landing-features">
+            <div class="landing-feature">
+                <div class="landing-feature-icon">&#x1F50D;</div>
+                <h3>Full-text search</h3>
+                <p>Find any conversation by content, instantly</p>
+            </div>
+            <div class="landing-feature">
+                <div class="landing-feature-icon">&#x1F3F7;</div>
+                <h3>Tag &amp; organize</h3>
+                <p>Name, tag, and favorite your conversations</p>
+            </div>
+            <div class="landing-feature">
+                <div class="landing-feature-icon">&#x1F4CA;</div>
+                <h3>Analytics</h3>
+                <p>Token usage, model breakdown, activity charts</p>
+            </div>
+            <div class="landing-feature">
+                <div class="landing-feature-icon">&#x1F4E6;</div>
+                <h3>Export &amp; Import</h3>
+                <p>Export per project or chat. Import on any machine</p>
+            </div>
+            <div class="landing-feature">
+                <div class="landing-feature-icon">&#x1F512;</div>
+                <h3>Read-only</h3>
+                <p>Never modifies ~/.claude — your data stays safe</p>
+            </div>
+            <div class="landing-feature">
+                <div class="landing-feature-icon">&#x26A1;</div>
+                <h3>API &amp; Docs</h3>
+                <p>Full REST API with Swagger docs at /docs</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

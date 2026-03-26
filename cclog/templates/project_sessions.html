@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}{{ project_name | short_project }} — cclog{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="breadcrumb">
+        <a href="/projects">Projects</a>
+        <span class="bc-sep">▸</span>
+        <span>{{ project_name | short_project }}</span>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+        <h1>{{ project_name | short_project }}</h1>
+        <a href="/api/v1/export/project/{{ encoded }}" class="btn-small" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;color:var(--accent-text);border-color:var(--accent-soft);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export Project
+        </a>
+    </div>
+    <p class="subtitle">{{ project_name }} — {{ sessions | length }} conversations</p>
+</div>
+
+<div class="session-list">
+    {% for s, meta in sessions %}
+    <a href="/sessions/{{ s.session_id }}" class="session-row">
+        <div class="session-row-main">
+            <span class="fav {{ 'active' if meta.favorite }}">★</span>
+            <div class="session-info">
+                <span class="session-name">{{ get_display_name(s, meta) }}</span>
+                <span class="session-branch">{{ s.git_branch or '' }}</span>
+            </div>
+            <div class="session-models">
+                {% for model in s.models_used %}
+                <span class="model-badge">{{ model | short_model }}</span>
+                {% endfor %}
+            </div>
+            <div class="session-tags">
+                {% for tag in meta.tags %}
+                <span class="tag-pill">{{ tag }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="session-row-meta">
+            <span class="session-msgs">{{ s.message_count }} msgs</span>
+            <span class="session-tokens">{{ (s.total_input_tokens + s.total_output_tokens) | format_tokens }} tok</span>
+            <span class="session-date">{{ s.started_at | format_date_long }}</span>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% endblock %}
