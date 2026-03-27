@@ -10,7 +10,57 @@ document.addEventListener('DOMContentLoaded', () => {
     initConversationView();
     initKeyboardShortcuts();
     checkForUpdate();
+    autoRefresh();
 });
+
+/* ── Session refresh ───────────────────────── */
+let _refreshing = false;
+
+async function callRefresh() {
+    if (_refreshing) return null;
+    _refreshing = true;
+    try {
+        const res = await fetch('/api/v1/refresh', { method: 'POST' });
+        return await res.json();
+    } catch (e) {
+        return null;
+    } finally {
+        _refreshing = false;
+    }
+}
+
+async function autoRefresh() {
+    // Only auto-refresh on pages that display session lists
+    if (!document.querySelector('.session-list, .stats-grid, .projects-grid')) return;
+    const key = 'cclog_refreshed';
+    if (sessionStorage.getItem(key)) {
+        sessionStorage.removeItem(key);
+        return;
+    }
+    const data = await callRefresh();
+    if (data && data.new > 0) {
+        sessionStorage.setItem(key, '1');
+        window.location.reload();
+    }
+}
+
+async function refreshSessions() {
+    const btn = document.getElementById('refresh-btn');
+    if (!btn) return;
+    btn.classList.add('spinning');
+    btn.disabled = true;
+    const data = await callRefresh();
+    if (data && data.new > 0) {
+        window.location.reload();
+    } else {
+        btn.querySelector('span').textContent = 'Up to date';
+        setTimeout(() => {
+            btn.querySelector('span').textContent = 'Refresh';
+            btn.classList.remove('spinning');
+            btn.disabled = false;
+        }, 1500);
+    }
+}
 
 /* ── Update check ──────────────────────────── */
 async function checkForUpdate() {

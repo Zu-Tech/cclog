@@ -139,6 +139,25 @@ def create_app(claude_home: Path | None = None) -> FastAPI:
     except Exception as e:
         print(f"Warning: Failed to build search index: {e}")
 
+    def _rescan_sessions():
+        """Rescan claude_home and rebuild search index. Returns (total, new) counts."""
+        old_count = len(summaries)
+        new_summaries = discover_all_sessions(claude_home)
+        summaries.clear()
+        summaries.extend(new_summaries)
+        try:
+            build_index(summaries, claude_home)
+        except Exception as e:
+            print(f"Warning: Failed to rebuild search index: {e}")
+        return len(summaries), len(summaries) - old_count
+
+    def _count_session_files():
+        """Cheap check: count .jsonl files without parsing them."""
+        projects_dir = claude_home / "projects"
+        if not projects_dir.exists():
+            return 0
+        return sum(1 for d in projects_dir.iterdir() if d.is_dir() and not d.name.startswith(".") for f in d.glob("*.jsonl"))
+
     # ── Pages ────────────────────────────────────
 
     @app.get("/", response_class=HTMLResponse)
@@ -341,6 +360,15 @@ def create_app(claude_home: Path | None = None) -> FastAPI:
         tag_list.sort(key=lambda x: x["count"], reverse=True)
         return {"tags": tag_list}
 
+    @app.post("/api/v1/refresh")
+    async def api_refresh():
+        """Rescan ~/.claude/ for new sessions and rebuild search index."""
+        # Cheap check: skip full rescan if file count hasn't changed
+        if _count_session_files() == len(summaries):
+            return {"ok": True, "sessions": len(summaries), "new": 0}
+        total, new = _rescan_sessions()
+        return {"ok": True, "sessions": total, "new": new}
+
     @app.get("/api/v1/analytics/overview")
     async def api_analytics():
         active = [s for s in summaries if not metadata.get(s["session_id"]).get("deleted")]
@@ -508,14 +536,7 @@ def create_app(claude_home: Path | None = None) -> FastAPI:
                                 metadata.sessions[sid] = meta_val
                         metadata.save()
 
-                new_summaries = discover_all_sessions(claude_home)
-                summaries.clear()
-                summaries.extend(new_summaries)
-
-                try:
-                    build_index(summaries, claude_home)
-                except Exception:
-                    pass
+                _rescan_sessions()
 
                 return {"success": True, "imported_sessions": imported_sessions, "imported_projects": len(imported_projects)}
 

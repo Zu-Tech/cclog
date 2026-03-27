@@ -5,6 +5,10 @@
 <div class="page-header">
     <h1>Dashboard</h1>
     <p class="subtitle">Your Claude Code history at a glance</p>
+    <button id="refresh-btn" class="btn-refresh" onclick="refreshSessions()" title="Scan for new conversations">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+        <span>Refresh</span>
+    </button>
 </div>
 
 <div class="stats-grid">
